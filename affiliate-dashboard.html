@@ -1,136 +1,896 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Affiliate Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4CAF50;
-            --secondary-color: #f3f3f3;
-            --font-family: 'Pretendard', sans-serif;
-            --text-color: #333;
-        }
-        body {
-            font-family: var(--font-family);
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-        }
-        header, nav, footer {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        .sidebar {
-            width: 250px;
-            background-color: var(--secondary-color);
-            padding: 1rem;
-            position: fixed;
-            height: 100%;
-        }
-        main {
-            margin-left: 260px; 
-            padding: 1rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            margin-left: -125px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 2px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1;
-            left: 50%;
-            bottom: 30px;
-            font-size: 17px;
-        }
-        .toast.show {
-            visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-        @keyframes fadein {
-            from {bottom: 0; opacity: 0;} 
-            to {bottom: 30px; opacity: 1;}
-        }
-        @keyframes fadeout {
-            from {bottom: 30px; opacity: 1;} 
-            to {bottom: 0; opacity: 0;}
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제휴사 관리 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb; --bg2: #ffffff; --bg3: #f0f3f9;
+    --surface: #ffffff; --surface2: #f4f6fb;
+    --border: rgba(59,100,220,0.12); --border2: rgba(59,100,220,0.07);
+    --accent: #3b6ee0; --accent2: #2a57c8;
+    --green: #059669; --green-bg: rgba(5,150,105,0.08);
+    --red: #dc2626; --red-bg: rgba(220,38,38,0.08);
+    --yellow: #d97706; --yellow-bg: rgba(217,119,6,0.08);
+    --text: #111827; --text2: #4b5563; --text3: #9ca3af;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --radius: 12px; --radius2: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* Sidebar */
+  .sidebar { position: fixed; left:0; top:0; width:240px; height:100vh; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; z-index:100; }
+  .logo { padding:26px 22px 18px; border-bottom:1px solid var(--border2); }
+  .logo-icon { width:38px; height:38px; background:linear-gradient(135deg,#3b6ee0,#2a57c8); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:10px; box-shadow:0 4px 14px rgba(59,110,224,0.3); }
+  .logo h1 { font-size:14px; font-weight:700; letter-spacing:-.3px; }
+  .logo p  { font-size:11px; color:var(--text3); margin-top:2px; }
+  .nav { padding:12px 10px; flex:1; }
+  .nav-label { font-size:10px; font-weight:600; color:var(--text3); letter-spacing:1.2px; text-transform:uppercase; padding:0 12px; margin:14px 0 6px; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius2); cursor:pointer; font-size:13.5px; font-weight:500; color:var(--text2); margin-bottom:2px; transition:all .2s; }
+  .nav-item:hover { background:var(--surface); color:var(--text); }
+  .nav-item.active { background:rgba(59,110,224,.1); color:var(--accent2); }
+  .nav-icon { font-size:15px; width:20px; text-align:center; }
+  .nav-badge { margin-left:auto; background:var(--accent); color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; }
+  .sidebar-footer { padding:12px; border-top:1px solid var(--border2); }
+  .user-card { display:flex; align-items:center; gap:10px; padding:10px; background:var(--surface); border-radius:var(--radius2); }
+  .user-avatar { width:32px; height:32px; background:linear-gradient(135deg,#3b6ee0,#059669); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; }
+  .user-name { font-size:12.5px; font-weight:600; }
+  .user-role { font-size:11px; color:var(--text3); }
+
+  /* Main */
+  .main { margin-left:240px; min-height:100vh; padding:28px 32px; }
+  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .page-title h2 { font-size:21px; font-weight:700; letter-spacing:-.5px; }
+  .page-title p  { font-size:13px; color:var(--text3); margin-top:3px; }
+  .header-actions { display:flex; gap:10px; }
+
+  /* Buttons */
+  .btn { display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:var(--radius2); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; border:none; font-family:inherit; }
+  .btn-primary { background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(59,110,224,.25); }
+  .btn-primary:hover { background:#3d6ce0; transform:translateY(-1px); }
+  .btn-outline { background:transparent; color:var(--text2); border:1px solid var(--border); }
+  .btn-outline:hover { background:var(--surface); color:var(--text); }
+  .btn-sm { padding:6px 12px; font-size:12px; }
+
+  /* Stats */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; position:relative; overflow:hidden; transition:all .2s; }
+  .stat-card:hover { border-color:rgba(99,130,255,.3); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; border-radius:2px 2px 0 0; }
+  .stat-card.blue::before   { background:linear-gradient(90deg,#4f7fff,#7c9fff); }
+  .stat-card.green::before  { background:linear-gradient(90deg,#34d399,#6ee7b7); }
+  .stat-card.yellow::before { background:linear-gradient(90deg,#fbbf24,#fcd34d); }
+  .stat-card.red::before    { background:linear-gradient(90deg,#f87171,#fca5a5); }
+  .stat-icon  { font-size:20px; margin-bottom:10px; }
+  .stat-value { font-size:22px; font-weight:700; font-family:'DM Mono',monospace; letter-spacing:-1px; margin-bottom:4px; }
+  .stat-label { font-size:12px; color:var(--text3); font-weight:500; }
+  .stat-change { font-size:11px; font-weight:600; margin-top:7px; }
+  .stat-change.up { color:var(--green); }
+
+  /* Section / Table */
+  .section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .section-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border2); }
+  .section-title { font-size:15px; font-weight:700; }
+  .section-sub   { font-size:12px; color:var(--text3); margin-top:2px; }
+  .filter-bar { display:flex; gap:10px; padding:13px 22px; border-bottom:1px solid var(--border2); background:var(--bg3); flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:180px; }
+  .search-icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px; }
+  .search-input { width:100%; padding:9px 12px 9px 32px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius2); color:var(--text); font-size:13px; font-family:inherit; transition:all .2s; }
+  .search-input:focus { outline:none; border-color:rgba(79,127,255,.5); box-shadow:0 0 0 3px rgba(79,127,255,.1); }
+  .search-input::placeholder { color:var(--text3); }
+  .filter-select { padding:9px 11px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius2); color:var(--text2); font-size:13px; font-family:inherit; cursor:pointer; min-width:120px; }
+  .filter-select:focus { outline:none; border-color:rgba(79,127,255,.5); }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg3); }
+  th { padding:11px 13px; text-align:left; font-size:11px; font-weight:600; color:var(--text3); letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+  th:first-child { padding-left:22px; } th:last-child { padding-right:22px; }
+  td { padding:13px 13px; font-size:13.5px; color:var(--text); border-bottom:1px solid var(--border2); vertical-align:middle; }
+  td:first-child { padding-left:22px; } td:last-child { padding-right:22px; }
+  tr:last-child td { border-bottom:none; }
+  tbody tr { transition:background .15s; }
+  tbody tr:hover { background:rgba(79,127,255,.04); }
+
+  .company-cell { display:flex; align-items:center; gap:11px; }
+  .company-logo { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+  .company-name { font-weight:600; font-size:13.5px; }
+  .company-biz  { font-size:11.5px; color:var(--text3); margin-top:1px; }
+  .mono { font-family:'DM Mono',monospace; font-size:13px; }
+
+  /* Badges */
+  .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11.5px; font-weight:600; }
+  .badge-dot { width:6px; height:6px; border-radius:50%; }
+  .badge-active   { background:var(--green-bg); color:var(--green); }
+  .badge-active .badge-dot { background:var(--green); }
+  .badge-pending  { background:var(--yellow-bg); color:var(--yellow); }
+  .badge-pending .badge-dot { background:var(--yellow); }
+  .badge-inactive { background:rgba(100,116,139,.15); color:var(--text3); }
+  .badge-inactive .badge-dot { background:var(--text3); }
+  .badge-expired  { background:var(--red-bg); color:var(--red); }
+  .badge-expired .badge-dot { background:var(--red); }
+
+  .col-amount  { font-family:'DM Mono',monospace; }
+  .col-fee     { font-family:'DM Mono',monospace; color:var(--yellow); }
+  .col-revenue { font-family:'DM Mono',monospace; color:var(--green); font-weight:600; }
+
+  /* Row actions */
+  .row-actions { display:flex; gap:6px; }
+  .action-btn { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; transition:all .15s; border:1px solid var(--border); background:transparent; color:var(--text3); font-size:13px; }
+  .action-btn:hover { background:var(--surface2); color:var(--text); border-color:rgba(99,130,255,.3); }
+  .action-btn.danger:hover { background:var(--red-bg); color:var(--red); border-color:rgba(248,113,113,.3); }
+
+  /* Pagination */
+  .pagination { display:flex; align-items:center; justify-content:space-between; padding:13px 22px; border-top:1px solid var(--border2); }
+  .page-info { font-size:12.5px; color:var(--text3); }
+  .page-controls { display:flex; gap:4px; }
+  .page-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500; border:1px solid var(--border); background:transparent; color:var(--text2); transition:all .15s; }
+  .page-btn:hover { background:var(--surface2); color:var(--text); }
+  .page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+  /* Summary row */
+  .summary-row { display:flex; border-top:1px solid var(--border2); background:var(--bg3); }
+  .summary-item { flex:1; padding:15px 20px; border-right:1px solid var(--border2); text-align:center; }
+  .summary-item:last-child { border-right:none; }
+  .summary-label { font-size:11px; color:var(--text3); font-weight:500; }
+  .summary-val { font-size:16px; font-weight:700; font-family:'DM Mono',monospace; margin-top:4px; }
+  .summary-val.green  { color:var(--green); }
+  .summary-val.blue   { color:var(--accent2); }
+  .summary-val.yellow { color:var(--yellow); }
+
+  /* Charts */
+  .chart-section { display:grid; grid-template-columns:1fr 270px; gap:14px; margin-bottom:22px; }
+  .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+  .chart-title { font-size:14px; font-weight:700; margin-bottom:3px; }
+  .chart-sub   { font-size:12px; color:var(--text3); margin-bottom:4px; }
+  .chart-legend-row { display:flex; gap:14px; margin-top:8px; }
+  .chart-legend-item { display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--text3); }
+  .chart-legend-dot { width:10px; height:10px; border-radius:2px; }
+  .bar-chart { display:flex; align-items:flex-end; gap:5px; height:100px; margin-top:12px; }
+  .bar-item  { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
+  .bar { width:100%; border-radius:4px 4px 0 0; min-height:4px; transition:opacity .2s; cursor:pointer; }
+  .bar:hover { opacity:.75; }
+  .bar-label { font-size:10px; color:var(--text3); font-weight:500; }
+  .donut-wrap { display:flex; align-items:center; flex-direction:column; gap:12px; margin-top:12px; }
+  .donut-legend { display:flex; flex-direction:column; gap:7px; width:100%; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
+  .legend-dot  { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .legend-val  { margin-left:auto; font-family:'DM Mono',monospace; font-size:12px; color:var(--text); font-weight:600; }
+
+  /* Expiry banner */
+  .expiry-banner { background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); border-radius:var(--radius2); padding:11px 16px; display:flex; align-items:center; gap:10px; margin-bottom:18px; font-size:13px; color:var(--yellow); font-weight:500; }
+  .expiry-banner strong { color:var(--text); }
+
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(4px); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s; }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal { background:var(--bg2); border:1px solid var(--border); border-radius:16px; width:580px; max-width:95vw; max-height:88vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.6); transform:translateY(14px); transition:transform .25s; }
+  .modal-overlay.open .modal { transform:translateY(0); }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid var(--border2); }
+  .modal-title { font-size:15px; font-weight:700; }
+  .modal-close { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text3); font-size:15px; transition:all .15s; }
+  .modal-close:hover { background:var(--surface2); color:var(--text); }
+  .modal-body   { padding:20px 24px; }
+  .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:15px 24px; border-top:1px solid var(--border2); }
+
+  /* Form */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  label { font-size:11.5px; font-weight:600; color:var(--text3); letter-spacing:.3px; }
+  .form-input,.form-select,.form-textarea { padding:9px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius2); color:var(--text); font-size:13.5px; font-family:inherit; transition:all .2s; width:100%; }
+  .form-input:focus,.form-select:focus,.form-textarea:focus { outline:none; border-color:rgba(79,127,255,.5); box-shadow:0 0 0 3px rgba(79,127,255,.1); }
+  .form-input::placeholder,.form-textarea::placeholder { color:var(--text3); }
+  .form-textarea { resize:vertical; min-height:68px; }
+  .form-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border2); margin:2px 0; }
+  .form-section-label { grid-column:1/-1; font-size:10.5px; font-weight:700; color:var(--accent2); letter-spacing:1px; text-transform:uppercase; }
+
+  /* Fee toggle */
+  .fee-mode-toggle { display:flex; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius2); overflow:hidden; grid-column:1/-1; }
+  .fee-mode-btn { flex:1; padding:9px 0; text-align:center; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--text3); transition:all .2s; background:transparent; border:none; font-family:inherit; }
+  .fee-mode-btn.active { background:var(--accent); color:#fff; }
+  .fee-row { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+
+  /* Calc preview */
+  .calc-preview { grid-column:1/-1; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius2); padding:13px 16px; display:flex; justify-content:space-around; align-items:center; }
+  .calc-item { text-align:center; }
+  .calc-label { font-size:11px; color:var(--text3); font-weight:500; }
+  .calc-val   { font-size:15px; font-weight:700; font-family:'DM Mono',monospace; margin-top:3px; }
+  .calc-val.yellow { color:var(--yellow); }
+  .calc-val.green  { color:var(--green); }
+  .calc-op { font-size:20px; color:var(--text3); }
+
+  /* Page views */
+  .page-view { display:none; }
+  .page-view.active { display:block; }
+
+  /* Toast */
+  .toast { position:fixed; bottom:26px; right:26px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius2); padding:12px 16px; display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--text); box-shadow:var(--shadow); z-index:9999; transform:translateY(70px); opacity:0; transition:all .3s; pointer-events:none; }
+  .toast.show { transform:translateY(0); opacity:1; }
+</style>
 </head>
 <body>
-<header>
-    <h1>제휴 대시보드</h1>
-</header>
+
+<!-- SIDEBAR -->
 <nav class="sidebar">
-    <h2>메뉴</h2>
-    <ul>
-        <li>홈</li>
-        <li>통계</li>
-        <li>제휴 관리</li>
-        <li>수익 추적</li>
-        <li>CSV 내보내기</li>
-    </ul>
-</nav>
-<main>
-    <h2>통계</h2>
-    <div>
-        <!-- Statistics Chart -->
+  <div class="logo">
+    <div class="logo-icon">🏢</div>
+    <h1>Partner Hub</h1>
+    <p>제휴사 관리 시스템</p>
+  </div>
+  <div class="nav">
+    <div class="nav-label">메인</div>
+    <div class="nav-item active" onclick="showPage('affiliates',this)">
+      <span class="nav-icon">🤝</span> 제휴사 관리
+      <span class="nav-badge" id="affiliateBadge">8</span>
     </div>
-    <h2>제휴 관리 테이블</h2>
-    <table>
-        <thead>
+    <div class="nav-item" onclick="showPage('revenue',this)">
+      <span class="nav-icon">💰</span> 매출 내역
+    </div>
+    <div class="nav-label">분석</div>
+    <div class="nav-item" onclick="showToast('준비 중인 기능입니다','🔜')">
+      <span class="nav-icon">📊</span> 통계 분석
+    </div>
+    <div class="nav-item" onclick="showToast('준비 중인 기능입니다','🔜')">
+      <span class="nav-icon">📋</span> 계약 관리
+    </div>
+    <div class="nav-label">설정</div>
+    <div class="nav-item" onclick="showToast('준비 중인 기능입니다','🔜')">
+      <span class="nav-icon">⚙️</span> 환경 설정
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">A</div>
+      <div>
+        <div class="user-name">관리자</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ═══ 제휴사 관리 ═══ -->
+  <div class="page-view active" id="page-affiliates">
+    <div class="page-header">
+      <div class="page-title">
+        <h2>🤝 제휴사 관리</h2>
+        <p>등록된 제휴사 정보 및 계약 현황을 관리합니다</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="exportCSV('affiliates')">📤 CSV 내보내기</button>
+        <button class="btn btn-primary" onclick="openAddAffModal()">＋ 제휴사 추가</button>
+      </div>
+    </div>
+
+    <div class="expiry-banner" id="expiryBanner" style="display:none">
+      ⚠️ <span id="expiryMsg"></span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">전체 제휴사</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="statActive">0</div>
+        <div class="stat-label">계약 활성</div>
+        <div class="stat-change up" id="statActiveRatio"></div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value" id="statPending">0</div>
+        <div class="stat-label">협의 중</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">💎</div>
+        <div class="stat-value" id="statAmount">-</div>
+        <div class="stat-label">총 월 거래액</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">제휴사 목록</div>
+          <div class="section-sub">전체 <span id="affTotalCount">0</span>개</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="affSearch" placeholder="제휴사명, 사업자번호 검색..." oninput="renderAffiliates()">
+        </div>
+        <select class="filter-select" id="affStatusFilter" onchange="renderAffiliates()">
+          <option value="">계약 상태 전체</option>
+          <option value="active">활성</option>
+          <option value="pending">협의 중</option>
+          <option value="inactive">비활성</option>
+          <option value="expired">만료</option>
+        </select>
+        <select class="filter-select" id="affCatFilter" onchange="renderAffiliates()">
+          <option value="">업종 전체</option>
+          <option>IT/소프트웨어</option><option>커머스</option>
+          <option>금융</option><option>물류</option>
+          <option>마케팅</option><option>기타</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
             <tr>
-                <th>이름</th>
-                <th>이메일</th>
-                <th>수익</th>
-                <th>작업</th>
+              <th>제휴사</th><th>사업자번호</th><th>업종</th>
+              <th>예상 월 거래액</th><th>기대 수익</th><th>수수료율</th>
+              <th>예상 계약일정</th><th>계약 상태</th><th>계약 만료일</th><th>관리</th>
             </tr>
-        </thead>
-        <tbody>
-            <!-- Data Rows -->
-        </tbody>
-    </table>
-    <button onclick="showAddAffiliateModal()">제휴 추가</button>
-    <button onclick="showRevenueModal()">수익 추가</button>
-    <div class="toast" id="toast">작업이 완료되었습니다!</div>
+          </thead>
+          <tbody id="affTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="page-info" id="affPageInfo"></div>
+        <div class="page-controls">
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 매출 내역 ═══ -->
+  <div class="page-view" id="page-revenue">
+    <div class="page-header">
+      <div class="page-title">
+        <h2>💰 매출 내역</h2>
+        <p>거래금액 − 정산 수수료 = 이달 매출액</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="exportCSV('revenue')">📤 CSV 내보내기</button>
+        <button class="btn btn-primary" onclick="openAddRevModal()">＋ 거래 추가</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">💳</div>
+        <div class="stat-value" id="rStatAmount">-</div>
+        <div class="stat-label">총 거래금액</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-icon">💸</div>
+        <div class="stat-value" id="rStatFee">-</div>
+        <div class="stat-label">정산 수수료 (지급)</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-value" id="rStatRevenue">-</div>
+        <div class="stat-label">이달 매출액</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value" id="rStatCount">-</div>
+        <div class="stat-label">총 거래 건수</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <div class="chart-title">월별 수익 추이</div>
+        <div class="chart-sub">최근 6개월</div>
+        <div class="chart-legend-row">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(79,127,255,0.4)"></div>거래금액</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#3b6ee0"></div>이달 매출액</div>
+        </div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">제휴사별 거래 비중</div>
+        <div class="chart-sub">거래금액 기준</div>
+        <div class="donut-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110" id="donutSvg"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">거래 내역</div>
+          <div class="section-sub">전체 <span id="revTotalCount">0</span>건</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="revSearch" placeholder="제휴사명 또는 거래 ID 검색..." oninput="renderRevenues()">
+        </div>
+        <select class="filter-select" id="revAffFilter" onchange="renderRevenues()">
+          <option value="">제휴사 전체</option>
+        </select>
+        <input type="date" class="filter-select" id="dateFrom" style="min-width:128px">
+        <span style="color:var(--text3);font-size:12px">~</span>
+        <input type="date" class="filter-select" id="dateTo" style="min-width:128px">
+        <button class="btn btn-outline btn-sm" onclick="renderRevenues()">적용</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>거래 ID</th><th>제휴사명</th><th>거래일</th>
+              <th>거래금액</th><th>정산 수수료</th><th>수수료율</th>
+              <th>이달 매출액</th><th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="revTableBody"></tbody>
+        </table>
+      </div>
+      <div class="summary-row">
+        <div class="summary-item">
+          <div class="summary-label">합계 거래금액</div>
+          <div class="summary-val" id="sumAmount">₩0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">합계 정산 수수료</div>
+          <div class="summary-val yellow" id="sumFee">₩0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">합계 이달 매출액</div>
+          <div class="summary-val green" id="sumRevenue">₩0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">거래 건수</div>
+          <div class="summary-val blue" id="sumCount">0건</div>
+        </div>
+      </div>
+      <div class="pagination">
+        <div class="page-info" id="revPageInfo"></div>
+        <div class="page-controls">
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
+
+<!-- 제휴사 모달 -->
+<div class="modal-overlay" id="affModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="affModalTitle">제휴사 추가</div>
+      <button class="modal-close" onclick="closeModal('affModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section-label">기본 정보</div>
+        <div class="form-group full"><label>제휴사명 *</label><input class="form-input" id="af_name" placeholder="예: 테크비전㈜"></div>
+        <div class="form-group"><label>사업자등록번호 *</label><input class="form-input" id="af_bizno" placeholder="000-00-00000"></div>
+        <div class="form-group"><label>업종</label>
+          <select class="form-select" id="af_category">
+            <option value="">선택</option>
+            <option>IT/소프트웨어</option><option>커머스</option>
+            <option>금융</option><option>물류</option><option>마케팅</option><option>기타</option>
+          </select>
+        </div>
+        <div class="form-group"><label>대표자명</label><input class="form-input" id="af_ceo" placeholder="홍길동"></div>
+        <div class="form-group"><label>담당자 이메일</label><input class="form-input" type="email" id="af_email" placeholder="contact@company.com"></div>
+        <div class="form-group"><label>연락처</label><input class="form-input" id="af_tel" placeholder="02-0000-0000"></div>
+        <div class="form-group full"><label>주소</label><input class="form-input" id="af_addr" placeholder="서울시 강남구..."></div>
+        <hr class="form-divider">
+        <div class="form-section-label">계약 정보</div>
+        <div class="form-group"><label>계약 상태</label>
+          <select class="form-select" id="af_status">
+            <option value="active">활성</option><option value="pending">협의 중</option>
+            <option value="inactive">비활성</option><option value="expired">만료</option>
+          </select>
+        </div>
+        <div class="form-group"><label>수수료율 (%)</label><input class="form-input" type="number" id="af_fee" placeholder="예: 15" min="0" max="100" step="0.1" oninput="calcExpectedRevenue()"></div>
+        <div class="form-group"><label>계약 시작일</label><input class="form-input" type="date" id="af_start"></div>
+        <div class="form-group"><label>계약 만료일</label><input class="form-input" type="date" id="af_end"></div>
+        <div class="form-group"><label>예상 월 거래액 (원)</label><input class="form-input" type="number" id="af_amount" placeholder="예: 80000000" oninput="calcExpectedRevenue()"></div>
+        <div class="form-group"><label>기대 수익 (자동계산)</label><input class="form-input" id="af_expectedRevenue" readonly placeholder="-" style="color:var(--green);font-family:'DM Mono',monospace;background:var(--bg3)"></div>
+        <div class="form-group"><label>예상 계약 시작일</label><input class="form-input" type="date" id="af_contractFrom"></div>
+        <div class="form-group"><label>예상 계약 종료일</label><input class="form-input" type="date" id="af_contractTo"></div>
+        <div class="form-group full"><label>메모</label><textarea class="form-textarea" id="af_memo" placeholder="계약 관련 특이사항..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('affModal')">취소</button>
+      <button class="btn btn-primary" onclick="saveAffiliate()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 거래 모달 -->
+<div class="modal-overlay" id="revModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="revModalTitle">거래 추가</div>
+      <button class="modal-close" onclick="closeModal('revModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section-label">거래 정보</div>
+        <div class="form-group full"><label>제휴사 *</label>
+          <select class="form-select" id="rv_affiliate" onchange="onAffChange()">
+            <option value="">제휴사 선택</option>
+          </select>
+        </div>
+        <div class="form-group"><label>거래일 *</label><input class="form-input" type="date" id="rv_date"></div>
+        <div class="form-group"><label>거래금액 (원) *</label><input class="form-input" type="number" id="rv_amount" placeholder="예: 25000000" oninput="calcFee()"></div>
+
+        <hr class="form-divider">
+        <div class="form-section-label">정산 수수료</div>
+
+        <div class="fee-mode-toggle">
+          <button class="fee-mode-btn active" id="fmAuto"   onclick="setFeeMode('auto')">% 비율 자동계산</button>
+          <button class="fee-mode-btn"         id="fmManual" onclick="setFeeMode('manual')">금액 직접입력</button>
+        </div>
+
+        <div class="fee-row" id="feeAutoRow">
+          <div class="form-group"><label>수수료율 (%)</label><input class="form-input" type="number" id="rv_feeRate" placeholder="예: 18" min="0" max="100" step="0.1" oninput="calcFee()"></div>
+          <div class="form-group"><label>계산된 수수료 금액</label><input class="form-input" id="rv_feeCalc" readonly placeholder="-" style="color:var(--yellow);font-family:'DM Mono',monospace"></div>
+        </div>
+        <div class="fee-row" id="feeManualRow" style="display:none">
+          <div class="form-group"><label>정산 수수료 (원) *</label><input class="form-input" type="number" id="rv_feeManual" placeholder="예: 4500000" oninput="calcFee()"></div>
+          <div class="form-group"><label>자동 계산 수수료율</label><input class="form-input" id="rv_feeRateCalc" readonly placeholder="-" style="color:var(--text3);font-family:'DM Mono',monospace"></div>
+        </div>
+
+        <div class="calc-preview">
+          <div class="calc-item"><div class="calc-label">거래금액</div><div class="calc-val" id="prev_amount">₩0</div></div>
+          <div class="calc-op">−</div>
+          <div class="calc-item"><div class="calc-label">정산 수수료</div><div class="calc-val yellow" id="prev_fee">₩0</div></div>
+          <div class="calc-op">=</div>
+          <div class="calc-item"><div class="calc-label">이달 매출액</div><div class="calc-val green" id="prev_revenue">₩0</div></div>
+        </div>
+
+        <hr class="form-divider">
+        <div class="form-group full"><label>메모</label><textarea class="form-textarea" id="rv_memo" placeholder="특이사항..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('revModal')">취소</button>
+      <button class="btn btn-primary" onclick="saveRevenue()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
+
 <script>
-    function showAddAffiliateModal() {
-        // Logic to show the modal for adding affiliates
-        showToast();
-    }
+// ── DATA ──
+let affiliates = [
+  {id:1,name:'테크비전㈜',bizno:'123-45-67890',category:'IT/소프트웨어',ceo:'김철수',email:'kim@techvision.co.kr',tel:'02-1234-5678',addr:'서울시 강남구',status:'active',fee:18,amount:120000000,start:'2024-01-01',end:'2025-09-30',contractFrom:'2024-01-01',contractTo:'2025-12-31',memo:'핵심 파트너사'},
+  {id:2,name:'쇼핑몰24',bizno:'234-56-78901',category:'커머스',ceo:'이영희',email:'lee@shopping24.com',tel:'02-2345-6789',addr:'서울시 마포구',status:'active',fee:12,amount:85000000,start:'2024-03-01',end:'2025-08-31',contractFrom:'2024-03-01',contractTo:'2025-08-31',memo:''},
+  {id:3,name:'파이낸스원',bizno:'345-67-89012',category:'금융',ceo:'박민준',email:'park@finance1.com',tel:'02-3456-7890',addr:'서울시 여의도',status:'active',fee:22,amount:200000000,start:'2023-06-01',end:'2026-05-31',contractFrom:'2023-06-01',contractTo:'2026-05-31',memo:'프리미엄 계약'},
+  {id:4,name:'퀵로지스틱스',bizno:'456-78-90123',category:'물류',ceo:'최수진',email:'choi@quicklogis.com',tel:'031-456-7890',addr:'경기도 성남시',status:'pending',fee:10,amount:0,start:'',end:'',contractFrom:'2025-09-01',contractTo:'2026-08-31',memo:'계약 협의 진행 중'},
+  {id:5,name:'디지털마케팅그룹',bizno:'567-89-01234',category:'마케팅',ceo:'정태호',email:'jung@dmg.co.kr',tel:'02-5678-9012',addr:'서울시 송파구',status:'active',fee:15,amount:60000000,start:'2024-07-01',end:'2025-06-30',contractFrom:'2024-07-01',contractTo:'2025-06-30',memo:''},
+  {id:6,name:'클라우드넷',bizno:'678-90-12345',category:'IT/소프트웨어',ceo:'한지민',email:'han@cloudnet.io',tel:'02-6789-0123',addr:'서울시 구로구',status:'inactive',fee:13,amount:30000000,start:'2023-01-01',end:'2024-12-31',contractFrom:'',contractTo:'',memo:'갱신 검토 필요'},
+  {id:7,name:'스마트커머스',bizno:'789-01-23456',category:'커머스',ceo:'오준혁',email:'oh@smartcom.kr',tel:'02-7890-1234',addr:'서울시 강동구',status:'pending',fee:11,amount:0,start:'',end:'',contractFrom:'2025-10-01',contractTo:'2026-09-30',memo:'신규 파트너 발굴'},
+  {id:8,name:'글로벌트레이드',bizno:'890-12-34567',category:'기타',ceo:'서미래',email:'seo@gtrade.com',tel:'02-8901-2345',addr:'인천시 연수구',status:'expired',fee:16,amount:0,start:'2022-01-01',end:'2024-06-30',contractFrom:'',contractTo:'',memo:'계약 종료'},
+];
 
-    function showRevenueModal() {
-        // Logic to show the modal for adding revenues
-        showToast();
-    }
+let revenues = [
+  {id:'TXN-0042',affiliate:'테크비전㈜',date:'2025-07-18',amount:25000000,fee:4500000,feeMode:'auto',feeRate:18,deposit:'received',depositDate:'2025-07-20',memo:''},
+  {id:'TXN-0041',affiliate:'파이낸스원',date:'2025-07-17',amount:45000000,fee:9900000,feeMode:'auto',feeRate:22,deposit:'received',depositDate:'2025-07-19',memo:''},
+  {id:'TXN-0040',affiliate:'쇼핑몰24',date:'2025-07-15',amount:18000000,fee:2160000,feeMode:'auto',feeRate:12,deposit:'waiting',depositDate:'',memo:''},
+  {id:'TXN-0039',affiliate:'디지털마케팅그룹',date:'2025-07-14',amount:12000000,fee:1800000,feeMode:'auto',feeRate:15,deposit:'received',depositDate:'2025-07-15',memo:''},
+  {id:'TXN-0038',affiliate:'테크비전㈜',date:'2025-07-12',amount:30000000,fee:5400000,feeMode:'auto',feeRate:18,deposit:'received',depositDate:'2025-07-14',memo:''},
+  {id:'TXN-0037',affiliate:'파이낸스원',date:'2025-07-10',amount:55000000,fee:12100000,feeMode:'auto',feeRate:22,deposit:'received',depositDate:'2025-07-12',memo:''},
+  {id:'TXN-0036',affiliate:'쇼핑몰24',date:'2025-07-09',amount:22000000,fee:2640000,feeMode:'auto',feeRate:12,deposit:'waiting',depositDate:'',memo:''},
+  {id:'TXN-0035',affiliate:'클라우드넷',date:'2025-07-08',amount:15000000,fee:2000000,feeMode:'manual',feeRate:null,deposit:'received',depositDate:'2025-07-10',memo:'수수료 직접 협의'},
+  {id:'TXN-0034',affiliate:'디지털마케팅그룹',date:'2025-07-05',amount:8000000,fee:1200000,feeMode:'auto',feeRate:15,deposit:'received',depositDate:'2025-07-07',memo:''},
+  {id:'TXN-0033',affiliate:'테크비전㈜',date:'2025-07-03',amount:35000000,fee:6300000,feeMode:'auto',feeRate:18,deposit:'waiting',depositDate:'',memo:''},
+  {id:'TXN-0032',affiliate:'파이낸스원',date:'2025-07-02',amount:40000000,fee:8800000,feeMode:'auto',feeRate:22,deposit:'received',depositDate:'2025-07-04',memo:''},
+  {id:'TXN-0031',affiliate:'쇼핑몰24',date:'2025-07-01',amount:14000000,fee:1680000,feeMode:'auto',feeRate:12,deposit:'received',depositDate:'2025-07-03',memo:''},
+];
 
-    function showToast() {
-        const toast = document.getElementById('toast');
-        toast.className = "toast show";
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-    }
+let editAffId = null, editRevId = null, feeMode = 'auto';
+
+// ── HELPERS ──
+const COLORS = ['#3b6ee0','#059669','#d97706','#dc2626','#7c3aed','#ea580c','#0891b2','#db2777'];
+const statusMap  = { active:{label:'활성',cls:'badge-active'}, pending:{label:'협의 중',cls:'badge-pending'}, inactive:{label:'비활성',cls:'badge-inactive'}, expired:{label:'만료',cls:'badge-expired'} };
+const depositMap = { received:{label:'입금 완료',cls:'badge-active'}, waiting:{label:'입금 대기',cls:'badge-pending'} };
+
+function logoLetter(n){ return (n||'?').replace(/[㈜㈔()]/g,'').trim()[0]||'?'; }
+function fmt(n){ if(!n) return '₩0'; if(n>=100000000) return '₩'+(n/100000000).toFixed(1)+'억'; if(n>=10000000) return '₩'+(n/10000000).toFixed(1)+'천만'; if(n>=10000) return '₩'+Math.round(n/10000)+'만'; return '₩'+n.toLocaleString(); }
+function fmtFull(n){ return n?'₩'+n.toLocaleString():'₩0'; }
+function nextId(){ return 'TXN-'+String(revenues.length+43).padStart(4,'0'); }
+
+// ── AFFILIATE TABLE ──
+function renderAffiliates(){
+  const q=document.getElementById('affSearch').value.toLowerCase();
+  const st=document.getElementById('affStatusFilter').value;
+  const cat=document.getElementById('affCatFilter').value;
+  const list=affiliates.filter(a=>(!q||a.name.toLowerCase().includes(q)||a.bizno.includes(q))&&(!st||a.status===st)&&(!cat||a.category===cat));
+  const tbody=document.getElementById('affTableBody');
+  const now=new Date();
+  tbody.innerHTML = list.length ? list.map((a,i)=>{
+    const s=statusMap[a.status]||statusMap.inactive;
+    const expired=a.end&&new Date(a.end)<now;
+    const soon=a.end&&!expired&&(new Date(a.end)-now)<60*86400000;
+    const ci=affiliates.indexOf(a);
+    return `<tr>
+      <td><div class="company-cell">
+        <div class="company-logo" style="background:${COLORS[ci%COLORS.length]}">${logoLetter(a.name)}</div>
+        <div><div class="company-name">${a.name}</div><div class="company-biz">${a.ceo||''} · ${a.email||''}</div></div>
+      </div></td>
+      <td class="mono">${a.bizno}</td>
+      <td>${a.category||'-'}</td>
+      <td class="mono">${a.amount?fmt(a.amount):'-'}</td>
+      <td class="mono" style="color:var(--green)">${(a.amount&&a.fee)?fmt(Math.round(a.amount*(1-a.fee/100))):'-'}</td>
+      <td class="mono">${a.fee?a.fee+'%':'-'}</td>
+      <td class="mono" style="color:var(--accent2);font-size:12px">${a.contractFrom&&a.contractTo?a.contractFrom+' ~ '+a.contractTo:a.contractFrom||a.contractTo||'-'}</td>
+      <td><span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span></td>
+      <td class="mono" style="color:${expired?'var(--red)':soon?'var(--yellow)':'var(--text2)'}">${a.end||'-'}${soon?' ⚠️':''}${expired?' 🔴':''}</td>
+      <td><div class="row-actions">
+        <button class="action-btn" onclick="openEditAffModal(${a.id})">✏️</button>
+        <button class="action-btn danger" onclick="deleteAffiliate(${a.id})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:32px">검색 결과가 없습니다</td></tr>`;
+  document.getElementById('affTotalCount').textContent=list.length;
+  document.getElementById('affPageInfo').textContent=`1–${list.length} / ${list.length}개 항목`;
+  updateAffStats(); checkExpiry();
+}
+
+function updateAffStats(){
+  const t=affiliates.length, a=affiliates.filter(x=>x.status==='active').length;
+  document.getElementById('statTotal').textContent=t;
+  document.getElementById('statActive').textContent=a;
+  document.getElementById('statPending').textContent=affiliates.filter(x=>x.status==='pending').length;
+  document.getElementById('statAmount').textContent=fmt(affiliates.reduce((s,x)=>s+(x.amount||0),0));
+  document.getElementById('statActiveRatio').textContent=`${t?Math.round(a/t*100):0}% 비율`;
+  document.getElementById('affiliateBadge').textContent=t;
+}
+
+function checkExpiry(){
+  const now=new Date();
+  const soon=affiliates.filter(a=>a.end&&a.status==='active'&&new Date(a.end)>now&&(new Date(a.end)-now)<60*86400000);
+  const b=document.getElementById('expiryBanner');
+  if(soon.length){
+    b.style.display='flex';
+    document.getElementById('expiryMsg').innerHTML=`계약 만료 60일 이내: <strong>${soon.map(a=>a.name).join(', ')}</strong> — 갱신 여부를 확인하세요.`;
+  } else { b.style.display='none'; }
+}
+
+// ── AFFILIATE MODAL ──
+function openAddAffModal(){
+  editAffId=null;
+  document.getElementById('affModalTitle').textContent='제휴사 추가';
+  ['af_name','af_bizno','af_ceo','af_email','af_tel','af_addr','af_fee','af_amount','af_start','af_end','af_contractFrom','af_contractTo','af_memo','af_expectedRevenue'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('af_category').value='';
+  document.getElementById('af_status').value='active';
+  document.getElementById('affModal').classList.add('open');
+}
+function openEditAffModal(id){
+  editAffId=id; const a=affiliates.find(x=>x.id===id);
+  document.getElementById('affModalTitle').textContent='제휴사 수정';
+  ['name','bizno','ceo','email','tel','addr','fee','amount','start','end','contractFrom','contractTo','memo'].forEach(f=>{const e=document.getElementById('af_'+f);if(e)e.value=a[f]||'';});
+  document.getElementById('af_category').value=a.category||'';
+  document.getElementById('af_status').value=a.status;
+  calcExpectedRevenue();
+  document.getElementById('affModal').classList.add('open');
+}
+function saveAffiliate(){
+  const name=document.getElementById('af_name').value.trim();
+  const bizno=document.getElementById('af_bizno').value.trim();
+  if(!name||!bizno){showToast('제휴사명과 사업자번호는 필수입니다','⚠️');return;}
+  const data={name,bizno,category:document.getElementById('af_category').value,ceo:document.getElementById('af_ceo').value,email:document.getElementById('af_email').value,tel:document.getElementById('af_tel').value,addr:document.getElementById('af_addr').value,status:document.getElementById('af_status').value,fee:parseFloat(document.getElementById('af_fee').value)||0,amount:parseInt(document.getElementById('af_amount').value)||0,start:document.getElementById('af_start').value,end:document.getElementById('af_end').value,contractFrom:document.getElementById('af_contractFrom').value,contractTo:document.getElementById('af_contractTo').value,memo:document.getElementById('af_memo').value};
+  if(editAffId){affiliates[affiliates.findIndex(a=>a.id===editAffId)]={...affiliates.find(a=>a.id===editAffId),...data};showToast('수정되었습니다','✅');}
+  else{data.id=Date.now();affiliates.push(data);showToast('추가되었습니다','✅');}
+  updateRevAffFilter();renderAffiliates();closeModal('affModal');
+}
+function deleteAffiliate(id){
+  if(!confirm('정말 삭제하시겠습니까?'))return;
+  affiliates=affiliates.filter(a=>a.id!==id);
+  updateRevAffFilter();renderAffiliates();showToast('삭제되었습니다','🗑️');
+}
+function calcExpectedRevenue(){
+  const amount=parseInt(document.getElementById('af_amount').value)||0;
+  const fee=parseFloat(document.getElementById('af_fee').value)||0;
+  const rev=amount&&fee?Math.round(amount*(1-fee/100)):0;
+  document.getElementById('af_expectedRevenue').value=rev?fmtFull(rev):'';
+}
+
+// ── REVENUE TABLE ──
+function renderRevenues(){
+  const q=document.getElementById('revSearch').value.toLowerCase();
+  const aff=document.getElementById('revAffFilter').value;
+  const df=document.getElementById('dateFrom').value;
+  const dt=document.getElementById('dateTo').value;
+  const list=revenues.filter(r=>(!q||r.affiliate.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))&&(!aff||r.affiliate===aff)&&(!df||r.date>=df)&&(!dt||r.date<=dt));
+  const tbody=document.getElementById('revTableBody');
+  tbody.innerHTML=list.length?list.map(r=>{
+    const rev=r.amount-r.fee;
+    const rate=r.feeMode==='auto'&&r.feeRate?r.feeRate+'%':(r.amount?Math.round(r.fee/r.amount*100)+'%':'-');
+    return `<tr>
+      <td class="mono" style="color:var(--accent2)">${r.id}</td>
+      <td style="font-weight:600">${r.affiliate}</td>
+      <td class="mono" style="color:var(--text2)">${r.date}</td>
+      <td class="col-amount">${fmtFull(r.amount)}</td>
+      <td class="col-fee">${fmtFull(r.fee)}</td>
+      <td class="mono" style="color:var(--text3)">${rate}</td>
+      <td class="col-revenue">${fmtFull(rev)}</td>
+      <td><div class="row-actions">
+        <button class="action-btn" onclick="openEditRevModal('${r.id}')">✏️</button>
+        <button class="action-btn danger" onclick="deleteRevenue('${r.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:32px">거래 내역이 없습니다</td></tr>`;
+  const sa=list.reduce((s,r)=>s+r.amount,0), sf=list.reduce((s,r)=>s+r.fee,0);
+  document.getElementById('sumAmount').textContent=fmtFull(sa);
+  document.getElementById('sumFee').textContent=fmtFull(sf);
+  document.getElementById('sumRevenue').textContent=fmtFull(sa-sf);
+  document.getElementById('sumCount').textContent=list.length+'건';
+  document.getElementById('revTotalCount').textContent=list.length;
+  document.getElementById('revPageInfo').textContent=`1–${list.length} / ${list.length}개 항목`;
+  const ta=revenues.reduce((s,r)=>s+r.amount,0), tf=revenues.reduce((s,r)=>s+r.fee,0);
+  document.getElementById('rStatAmount').textContent=fmt(ta);
+  document.getElementById('rStatFee').textContent=fmt(tf);
+  document.getElementById('rStatRevenue').textContent=fmt(ta-tf);
+  document.getElementById('rStatCount').textContent=revenues.length+'건';
+}
+
+function updateRevAffFilter(){
+  const s=document.getElementById('revAffFilter'), cur=s.value;
+  s.innerHTML='<option value="">제휴사 전체</option>'+affiliates.map(a=>`<option value="${a.name}">${a.name}</option>`).join('');
+  s.value=cur;
+  const s2=document.getElementById('rv_affiliate');
+  s2.innerHTML='<option value="">제휴사 선택</option>'+affiliates.filter(a=>a.status==='active').map(a=>`<option value="${a.name}">${a.name}</option>`).join('');
+}
+
+// ── REVENUE MODAL ──
+function openAddRevModal(){
+  editRevId=null;
+  document.getElementById('revModalTitle').textContent='거래 추가';
+  ['rv_amount','rv_feeRate','rv_feeManual','rv_memo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('rv_affiliate').value='';
+  document.getElementById('rv_date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('rv_feeCalc').value='';
+  document.getElementById('rv_feeRateCalc').value='';
+  setFeeMode('auto'); calcFee();
+  document.getElementById('revModal').classList.add('open');
+}
+function openEditRevModal(id){
+  editRevId=id; const r=revenues.find(x=>x.id===id);
+  document.getElementById('revModalTitle').textContent='거래 수정';
+  document.getElementById('rv_affiliate').value=r.affiliate;
+  document.getElementById('rv_date').value=r.date;
+  document.getElementById('rv_amount').value=r.amount;
+  document.getElementById('rv_memo').value=r.memo||'';
+  setFeeMode(r.feeMode||'auto');
+  if(r.feeMode==='auto') document.getElementById('rv_feeRate').value=r.feeRate||'';
+  else document.getElementById('rv_feeManual').value=r.fee;
+  calcFee();
+  document.getElementById('revModal').classList.add('open');
+}
+function saveRevenue(){
+  const aff=document.getElementById('rv_affiliate').value;
+  const date=document.getElementById('rv_date').value;
+  const amount=parseInt(document.getElementById('rv_amount').value)||0;
+  if(!aff||!date||!amount){showToast('제휴사, 거래일, 거래금액은 필수입니다','⚠️');return;}
+  let fee=0,feeRate=null;
+  if(feeMode==='auto'){feeRate=parseFloat(document.getElementById('rv_feeRate').value)||0;fee=Math.round(amount*feeRate/100);}
+  else{fee=parseInt(document.getElementById('rv_feeManual').value)||0;}
+  const data={affiliate:aff,date,amount,fee,feeMode,feeRate,memo:document.getElementById('rv_memo').value};
+  if(editRevId){revenues[revenues.findIndex(r=>r.id===editRevId)]={...revenues.find(r=>r.id===editRevId),...data};showToast('수정되었습니다','✅');}
+  else{data.id=nextId();revenues.unshift(data);showToast('거래가 추가되었습니다','✅');}
+  renderRevenues();renderBarChart();renderDonut();closeModal('revModal');
+}
+function deleteRevenue(id){
+  if(!confirm('정말 삭제하시겠습니까?'))return;
+  revenues=revenues.filter(r=>r.id!==id);
+  renderRevenues();renderBarChart();renderDonut();showToast('삭제되었습니다','🗑️');
+}
+
+// ── FEE CALC ──
+function setFeeMode(m){
+  feeMode=m;
+  document.getElementById('fmAuto').classList.toggle('active',m==='auto');
+  document.getElementById('fmManual').classList.toggle('active',m==='manual');
+  document.getElementById('feeAutoRow').style.display=m==='auto'?'grid':'none';
+  document.getElementById('feeManualRow').style.display=m==='manual'?'grid':'none';
+  calcFee();
+}
+function onAffChange(){
+  const name=document.getElementById('rv_affiliate').value;
+  const a=affiliates.find(x=>x.name===name);
+  if(a&&a.fee&&feeMode==='auto'){document.getElementById('rv_feeRate').value=a.fee;calcFee();}
+}
+function calcFee(){
+  const amount=parseInt(document.getElementById('rv_amount').value)||0;
+  let fee=0;
+  if(feeMode==='auto'){const rate=parseFloat(document.getElementById('rv_feeRate').value)||0;fee=Math.round(amount*rate/100);document.getElementById('rv_feeCalc').value=fee?fmtFull(fee):'';}
+  else{fee=parseInt(document.getElementById('rv_feeManual').value)||0;document.getElementById('rv_feeRateCalc').value=(amount&&fee)?Math.round(fee/amount*1000)/10+'%':'';}
+  document.getElementById('prev_amount').textContent=fmtFull(amount);
+  document.getElementById('prev_fee').textContent=fmtFull(fee);
+  document.getElementById('prev_revenue').textContent=fmtFull(amount-fee);
+}
+
+// ── CHARTS ──
+function renderBarChart(){
+  const months=['2월','3월','4월','5월','6월','7월'];
+  const totals=[280,310,260,340,380,420].map(x=>x*1000000);
+  const company=totals.map(x=>Math.round(x*0.74));
+  const max=Math.max(...totals);
+  document.getElementById('barChart').innerHTML=months.map((m,i)=>{
+    const th=Math.round(totals[i]/max*100), ch=Math.round(company[i]/max*100);
+    return `<div class="bar-item">
+      <div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:96px">
+        <div class="bar" style="height:${th}%;background:rgba(59,110,224,0.18);border:1px solid rgba(59,110,224,0.25)" title="${m} 거래액: ${fmt(totals[i])}"></div>
+        <div class="bar" style="height:${ch}%;background:linear-gradient(180deg,#3b6ee0,#2a57c8)" title="${m} 수익금: ${fmt(company[i])}"></div>
+      </div>
+      <div class="bar-label">${m}</div>
+    </div>`;
+  }).join('');
+}
+function renderDonut(){
+  const map={};revenues.forEach(r=>{map[r.affiliate]=(map[r.affiliate]||0)+r.amount;});
+  const total=Object.values(map).reduce((s,v)=>s+v,0)||1;
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const dc=['#3b6ee0','#059669','#d97706','#9ca3af'];
+  const cx=55,cy=55,r=40,ir=22;
+  let angle=-Math.PI/2, paths='';
+  sorted.forEach(([name,val],i)=>{
+    const pct=val/total, a=pct*2*Math.PI;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+a),y2=cy+r*Math.sin(angle+a);
+    const ix1=cx+ir*Math.cos(angle),iy1=cy+ir*Math.sin(angle);
+    const ix2=cx+ir*Math.cos(angle+a),iy2=cy+ir*Math.sin(angle+a);
+    paths+=`<path d="M${x1} ${y1}A${r} ${r} 0 ${a>Math.PI?1:0} 1 ${x2} ${y2}L${ix2} ${iy2}A${ir} ${ir} 0 ${a>Math.PI?1:0} 0 ${ix1} ${iy1}Z" fill="${dc[i]}" opacity="0.9"/>`;
+    angle+=a;
+  });
+  document.getElementById('donutSvg').innerHTML=paths+`<text x="55" y="52" text-anchor="middle" fill="#111827" font-size="10" font-weight="700" font-family="DM Mono">${revenues.length}건</text><text x="55" y="63" text-anchor="middle" fill="#9ca3af" font-size="8">거래</text>`;
+  document.getElementById('donutLegend').innerHTML=sorted.map(([name,val],i)=>`<div class="legend-item"><div class="legend-dot" style="background:${dc[i]}"></div>${name}<span class="legend-val">${Math.round(val/total*100)}%</span></div>`).join('');
+}
+
+// ── PAGE NAV ──
+function showPage(page,el){
+  document.querySelectorAll('.page-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el)el.classList.add('active');
+  if(page==='revenue'){renderRevenues();renderBarChart();renderDonut();}
+}
+
+// ── MODAL ──
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ── EXPORT ──
+function exportCSV(type){
+  let csv='',fn='';
+  if(type==='affiliates'){
+    csv='제휴사명,사업자번호,업종,대표자,이메일,연락처,상태,수수료율,월거래액,계약시작,계약만료\n'+affiliates.map(a=>[a.name,a.bizno,a.category,a.ceo,a.email,a.tel,a.status,a.fee+'%',a.amount,a.start,a.end].join(',')).join('\n');
+    fn='제휴사목록.csv';
+  } else {
+    csv='거래ID,제휴사명,거래일,거래금액,정산수수료,수수료율,이달매출액\n'+revenues.map(r=>{const rev=r.amount-r.fee;const rate=r.feeMode==='auto'&&r.feeRate?r.feeRate+'%':Math.round(r.fee/r.amount*100)+'%';return[r.id,r.affiliate,r.date,r.amount,r.fee,rate,rev].join(',');}).join('\n');
+    fn='매출내역.csv';
+  }
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'})),download:fn});
+  a.click(); showToast(fn+' 다운로드 완료','📥');
+}
+
+// ── TOAST ──
+function showToast(msg,icon='✅'){
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').textContent=icon;
+  const t=document.getElementById('toast');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──
+updateRevAffFilter(); renderAffiliates(); renderRevenues();
 </script>
 </body>
 </html>
