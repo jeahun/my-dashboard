@@ -1,12 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Affiliate Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #f3f3f3;
+            --font-family: 'Pretendard', sans-serif;
+            --text-color: #333;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        header, nav, footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            padding: 1rem;
+            position: fixed;
+            height: 100%;
+        }
+        main {
+            margin-left: 260px; 
+            padding: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+        }
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Affiliate Dashboard</h1>
-    <p>Current Date and Time (UTC): 2026-03-18 13:02:24</p>
+<header>
+    <h1>제휴 대시보드</h1>
+</header>
+<nav class="sidebar">
+    <h2>메뉴</h2>
+    <ul>
+        <li>홈</li>
+        <li>통계</li>
+        <li>제휴 관리</li>
+        <li>수익 추적</li>
+        <li>CSV 내보내기</li>
+    </ul>
+</nav>
+<main>
+    <h2>통계</h2>
+    <div>
+        <!-- Statistics Chart -->
+    </div>
+    <h2>제휴 관리 테이블</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>수익</th>
+                <th>작업</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data Rows -->
+        </tbody>
+    </table>
+    <button onclick="showAddAffiliateModal()">제휴 추가</button>
+    <button onclick="showRevenueModal()">수익 추가</button>
+    <div class="toast" id="toast">작업이 완료되었습니다!</div>
+</main>
+<script>
+    function showAddAffiliateModal() {
+        // Logic to show the modal for adding affiliates
+        showToast();
+    }
+
+    function showRevenueModal() {
+        // Logic to show the modal for adding revenues
+        showToast();
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.className = "toast show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+</script>
 </body>
 </html>
